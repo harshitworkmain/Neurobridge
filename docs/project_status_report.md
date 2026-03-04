@@ -1,6 +1,6 @@
-# NeuroBridge AI — Project Status Report v4.1
+# NeuroBridge AI — Project Status Report v5.0
 
-> **Generated:** February 19, 2026
+> **Generated:** March 4, 2026
 > **Platform:** NeuroBridge AI — Remote Autism Care Ecosystem
 > **Stack:** Node.js 22 + Express + React 19 + SQLite + Vite + TailwindCSS
 
@@ -39,13 +39,14 @@ NeuroBridge has evolved from a screening tool into a **full Remote Autism Care E
 
 | File | Purpose | Lines |
 |------|---------|-------|
-| `server/metricsEngine.js` | Risk scoring, regression detection, behavioral scoring | ~500 |
-| `server/analyticsEngine.js` | Patient analytics, cohort learning, performance metrics | ~400 |
-| `server/therapyEngine.js` | Therapy plans, module recommendations | ~300 |
-| `server/workflowEngine.js` | Daily tasks, alerts, reminders, reports | ~400 |
-| `server/teleconsultEngine.js` | Appointment scheduling, session notes, notifications | ~300 |
-| `server/gameEngine.js` | Session tracking, adaptive difficulty, recommendations, badges | ~300 |
-| `server/communityEngine.js` | Posts CRUD, comments, likes, bookmarks, reports, moderation | ~410 |
+| `server/engines/metricsEngine.js` | Risk scoring, regression detection, behavioral scoring | ~500 |
+| `server/engines/analyticsEngine.js` | Patient analytics, cohort learning, performance metrics | ~400 |
+| `server/engines/therapyEngine.js` | Therapy plans, module recommendations | ~300 |
+| `server/engines/workflowEngine.js` | Daily tasks, alerts, reminders, reports | ~400 |
+| `server/engines/teleconsultEngine.js` | Appointment scheduling, session notes, notifications | ~300 |
+| `server/engines/gameEngine.js` | Session tracking, adaptive difficulty, recommendations, badges | ~300 |
+| `server/engines/communityEngine.js` | Posts CRUD, comments, likes, bookmarks, reports, moderation | ~410 |
+| `server/engines/screeningEngine.js` | Vision model / heatmap analysis | ~100 |
 
 ### Route Modules (Extracted from monolithic index.js)
 
@@ -155,11 +156,10 @@ NeuroBridge has evolved from a screening tool into a **full Remote Autism Care E
 | Backend Engine Files | 8 |
 | Route Module Files | 5 |
 | Frontend Pages | 11 |
-| Frontend Components | 8 (VideoCall, PhaserMemoryMatch, PhaserDayBuilder, PhaserGazeGarden, EmotionMirror, SessionReplayViewer, VisualSchedule, ErrorBoundary) |
-| Frontend Utilities | 3 (audioCues.js, socketManager.js, scheduler integration) |
+| Frontend Components | 12 (VideoCall, PhaserMemoryMatch, PhaserDayBuilder, PhaserGazeGarden, EmotionMirror, SessionReplayViewer, VisualSchedule, ErrorBoundary, HeatmapViewer, OnboardingFlow, SessionQualityBanner, BehavioralQuestionnaire) |
+| Frontend Utilities | 4 (audioCues.js, fetchWithRetry.js, config/api.js, PreferencesContext) |
 | API Endpoints (total) | ~75 |
-| Section 9 Suggestions Implemented | 30/30 (100%) |
-| Section 9 Suggestions Deferred | 0/30 |
+| Deployment | Render (Frontend + Backend) |
 
 ### Section 9 Top 10 Priority Completion
 
@@ -215,10 +215,19 @@ NeuroBridge has evolved from a screening tool into a **full Remote Autism Care E
 5. **Fetch Retry** — `fetchWithRetry.js` utility with exponential backoff + jitter for resilient API calls
 6. **Online/Offline Detection** — `isOnline()` and `onConnectionChange()` utilities for network resilience
 
-### Remaining (Phase 4-5)
-1. **MediaPipe Face Mesh** — Real facial landmark analysis for AI Screening (already integrated)
-2. **ML Content Moderation** — TensorFlow.js toxicity detection in Community
-3. **PostgreSQL Migration** (E4) — Knex.js query builder + connection pooling
-4. **Dockerization & CI/CD** — Production deployment pipeline
-5. **Advanced Features** — Push notifications (web-push), email reports (nodemailer), Nivo charts, Jitsi multi-party video
+### Phase 4 Deployment ✅ (v6.0)
+1. **Directory Cleanup** — Reorganized `server/engines/`, created `docs/`, removed junk files
+2. **Git Setup** — `neurobridge-v2` branch pushed to `harshitworkmain/Neurobridge`
+3. **Render Deployment** — Backend Web Service + Frontend Static Site, auto-deploy on push
+4. **Live URLs:**
+   - Frontend: https://neurobridge-app.onrender.com
+   - Backend API: https://neurobridge-api.onrender.com
+
+### Remaining (Phase 5 — Advanced Features)
+1. **ML Content Moderation** — TensorFlow.js toxicity detection in Community
+2. **PostgreSQL Migration** (E4) — Knex.js query builder + connection pooling
+3. **Push Notifications** — web-push Service Worker for therapy reminders
+4. **Email Reports** — nodemailer weekly progress emails
+5. **Advanced Charts** — Nivo heatmaps, radar charts
+6. **Multi-Party Video** — Jitsi SDK group sessions
 
