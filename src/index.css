@@ -17,7 +17,149 @@
 @layer base {
   body {
     @apply bg-slate-50 text-slate-900 antialiased font-sans;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+}
+
+/* ======================= */
+/* DARK MODE               */
+/* ======================= */
+.dark body {
+  @apply bg-slate-900 text-slate-100;
+}
+
+.dark .bg-white {
+  background-color: #1e293b !important;
+  /* slate-800 */
+}
+
+.dark .bg-slate-50 {
+  background-color: #0f172a !important;
+  /* slate-950 */
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200 {
+  border-color: #334155 !important;
+  /* slate-700 */
+}
+
+.dark .text-slate-900 {
+  color: #f1f5f9 !important;
+  /* slate-100 */
+}
+
+.dark .text-slate-800 {
+  color: #e2e8f0 !important;
+  /* slate-200 */
+}
+
+.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+  /* slate-300 */
+}
+
+.dark .text-slate-600 {
+  color: #94a3b8 !important;
+  /* slate-400 */
+}
+
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+  /* slate-400 */
+}
+
+.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+  /* slate-800 */
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark nav {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+.dark footer {
+  background-color: #0f172a !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .divide-slate-50> :not([hidden])~ :not([hidden]) {
+  border-color: #334155 !important;
+}
+
+/* ======================= */
+/* SENSORY-SAFE MODE       */
+/* ======================= */
+.sensory-safe * {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.05s !important;
+}
+
+.sensory-safe .animate-spin,
+.sensory-safe .animate-pulse,
+.sensory-safe .animate-bounce {
+  animation: none !important;
+}
+
+.sensory-safe .animate-fade-in {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+/* Mute vibrant gradients in sensory mode */
+.sensory-safe .bg-gradient-to-r,
+.sensory-safe .bg-gradient-to-br {
+  background-image: none !important;
+  background-color: #64748b !important;
+  /* slate-500 — neutral */
+}
+
+/* Reduce contrast on colored backgrounds */
+.sensory-safe .bg-primary-600,
+.sensory-safe .bg-primary-700 {
+  background-color: #64748b !important;
+}
+
+.sensory-safe .bg-emerald-500,
+.sensory-safe .bg-emerald-600 {
+  background-color: #6b8a7a !important;
+}
+
+.sensory-safe .bg-violet-500,
+.sensory-safe .bg-violet-600 {
+  background-color: #7b7d8a !important;
+}
+
+.sensory-safe .bg-pink-500,
+.sensory-safe .bg-rose-600 {
+  background-color: #8a7b7d !important;
+}
+
+.sensory-safe .bg-amber-500,
+.sensory-safe .bg-orange-600 {
+  background-color: #8a7b5d !important;
+}
+
+/* Mute shadows in sensory mode */
+.sensory-safe .shadow-sm,
+.sensory-safe .shadow-md,
+.sensory-safe .shadow-lg,
+.sensory-safe .shadow-xl,
+.sensory-safe .shadow-2xl {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Custom Scrollbar */
@@ -35,4 +177,128 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-300;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #475569 !important;
+}
+
+/* Page Transition Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.animate-fade-in-right {
+  animation: fadeInRight 0.3s ease-out both;
+}
+
+/* Text truncation helper */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ======================= */
+/* AGE-ADAPTIVE UI (C1)    */
+/* ======================= */
+
+/* Child mode (age ≤ 6): Larger fonts, bigger touch targets, more spacing */
+.age-child body {
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.age-child button,
+.age-child a,
+.age-child input,
+.age-child select,
+.age-child textarea {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+.age-child .rounded-lg {
+  border-radius: 16px !important;
+}
+
+.age-child .rounded-xl {
+  border-radius: 20px !important;
+}
+
+.age-child .rounded-2xl {
+  border-radius: 24px !important;
+}
+
+.age-child h1 {
+  font-size: 2.25rem !important;
+}
+
+.age-child h2 {
+  font-size: 1.75rem !important;
+}
+
+.age-child h3 {
+  font-size: 1.375rem !important;
+}
+
+/* Teen mode (age 7-12): Moderate size increase */
+.age-teen body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.age-teen button,
+.age-teen a {
+  min-height: 40px;
+}
+
+/* ======================= */
+/* PAGE TRANSITIONS (A2)   */
+/* ======================= */
+
+@keyframes pageTransition {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: pageTransition 0.35s ease-out both;
+}
+
+/* Smooth transition between pages */
+.animate-fade-in {
+  animation: pageTransition 0.35s ease-out both;
 }

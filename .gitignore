@@ -3,15 +3,11 @@ node_modules
 .pnp
 .pnp.js
 
-# Testing
-coverage
-
-# Production
+# Production build
 dist
 build
 
-# Misc
-.DS_Store
+# Environment files
 .env
 .env.local
 .env.development.local
@@ -19,6 +15,7 @@ build
 .env.production.local
 
 # Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -28,8 +25,27 @@ server/neurobridge.db
 server/neurobridge.db-shm
 server/neurobridge.db-wal
 
+# Local Node.js binaries (not needed in repo)
+node-v*/
+*.tar.xz
+
+# Presentations / docs not for repo
+*.pptx
+
 # Editor
 .vscode
 .idea
 
+# Platform artifacts
 .vercel
+.localnode
+.netlify
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+test-results
+playwright-report

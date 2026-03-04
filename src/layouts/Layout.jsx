@@ -1,18 +1,43 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Brain, Stethoscope, Activity, Users, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Brain, Stethoscope, Activity, Users, Settings, Menu, X, FileText, Video, Gamepad2, Bell, Moon, Sun, Shield, Target } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { usePreferences } from '../contexts/PreferencesContext';
+
+import API from '../config/api.js';
 
 const Layout = ({ children }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+    const [unreadCount, setUnreadCount] = React.useState(0);
+    const [showSettings, setShowSettings] = React.useState(false);
     const location = useLocation();
+    const prefs = usePreferences();
+
+    // Poll for notification count
+    React.useEffect(() => {
+        const loadCount = async () => {
+            try {
+                const res = await fetch(`${API}/notifications/unread-count`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setUnreadCount(data.unread_count || 0);
+                }
+            } catch (e) { /* ignore */ }
+        };
+        loadCount();
+        const interval = setInterval(loadCount, 30000); // Poll every 30s
+        return () => clearInterval(interval);
+    }, []);
 
     const navItems = [
         { name: 'Dashboard', path: '/', icon: LayoutDashboard },
         { name: 'AI Screening', path: '/screening', icon: Brain },
-        { name: 'Therapy Plan', path: '/therapy', icon: Activity },
-        { name: 'Progress', path: '/progress', icon: Stethoscope }, // Reusing icon for demo
+        { name: 'Therapy', path: '/therapy', icon: Activity },
+        { name: 'Games', path: '/games', icon: Gamepad2 },
+        { name: 'Goals', path: '/goals', icon: Target },
+        { name: 'Progress', path: '/progress', icon: Stethoscope },
+        { name: 'Teleconsult', path: '/appointments', icon: Video },
         { name: 'Community', path: '/community', icon: Users },
     ];
 
@@ -58,15 +83,65 @@ const Layout = ({ children }) => {
                             })}
                         </div>
 
-                        <div className="hidden sm:ml-6 sm:flex sm:items-center">
+                        <div className="hidden sm:ml-6 sm:flex sm:items-center gap-2">
                             <Link to="/clinician" className="text-sm font-medium text-slate-500 hover:text-primary-600">
                                 Clinician Mode
                             </Link>
-                            <div className="ml-4 relative">
-                                <button className="bg-primary-50 text-primary-700 p-2 rounded-full hover:bg-primary-100 transition-colors">
-                                    <span className="sr-only">Settings</span>
+                            <Link to="/reports" className="text-sm font-medium text-slate-500 hover:text-primary-600 ml-2">
+                                <FileText className="w-4 h-4" />
+                            </Link>
+                            <div className="relative">
+                                <button
+                                    className="bg-primary-50 text-primary-700 p-2 rounded-full hover:bg-primary-100 transition-colors relative"
+                                    title="Notifications"
+                                >
+                                    <Bell className="w-5 h-5" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm animate-pulse">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowSettings(s => !s)}
+                                    className="bg-primary-50 text-primary-700 p-2 rounded-full hover:bg-primary-100 transition-colors"
+                                    title="Settings"
+                                >
                                     <Settings className="w-5 h-5" />
                                 </button>
+                                {showSettings && (
+                                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50">
+                                        <div className="px-4 py-2 border-b border-slate-100">
+                                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Display Settings</p>
+                                        </div>
+                                        <button
+                                            onClick={() => { prefs?.toggleDarkMode(); }}
+                                            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                                        >
+                                            <span className="flex items-center gap-2 text-sm text-slate-700">
+                                                {prefs?.preferences?.dark_mode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-slate-400" />}
+                                                Dark Mode
+                                            </span>
+                                            <div className={`w-8 h-5 rounded-full transition-colors ${prefs?.preferences?.dark_mode ? 'bg-primary-600' : 'bg-slate-300'} relative`}>
+                                                <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-transform ${prefs?.preferences?.dark_mode ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                                            </div>
+                                        </button>
+                                        <button
+                                            onClick={() => { prefs?.toggleSensoryMode(); }}
+                                            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition-colors"
+                                        >
+                                            <span className="flex items-center gap-2 text-sm text-slate-700">
+                                                <Shield className="w-4 h-4 text-teal-500" />
+                                                Calm Mode
+                                            </span>
+                                            <div className={`w-8 h-5 rounded-full transition-colors ${prefs?.preferences?.sensory_mode ? 'bg-teal-500' : 'bg-slate-300'} relative`}>
+                                                <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-transform ${prefs?.preferences?.sensory_mode ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                                            </div>
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -133,7 +208,7 @@ const Layout = ({ children }) => {
                     <div className="flex space-x-4">
                         <Link to="/consent" className="hover:text-slate-900">Privacy & Consent</Link>
                         <span>|</span>
-                        <span>v1.0.0-Demo</span>
+                        <span>v5.0.0</span>
                     </div>
                 </div>
             </footer>
