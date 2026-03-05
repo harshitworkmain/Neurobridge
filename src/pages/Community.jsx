@@ -28,6 +28,7 @@ const Community = () => {
 
     const [newPost, setNewPost] = useState({ category_id: '', title: '', content: '' });
     const [reportData, setReportData] = useState({ reason: 'misinformation', description: '' });
+    const [postError, setPostError] = useState('');
 
     useEffect(() => {
         loadCategories();
@@ -83,23 +84,27 @@ const Community = () => {
     const handleCreatePost = async (e) => {
         e.preventDefault();
         setSubmitting(true);
+        setPostError('');
         try {
             const res = await fetch(`${API}/community/posts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newPost)
             });
+            const data = await res.json();
             if (res.ok) {
-                const data = await res.json();
                 setShowCreateModal(false);
                 setNewPost({ category_id: '', title: '', content: '' });
                 if (data.status === 'under_review') {
                     alert('Your post has been submitted and is pending review. It will appear once approved.');
                 }
                 await loadPosts();
+            } else {
+                setPostError(data.error || 'Failed to create post. Please try again.');
             }
         } catch (e) {
             console.error(e);
+            setPostError('Network error. Please check your connection and try again.');
         } finally {
             setSubmitting(false);
         }
@@ -565,6 +570,12 @@ const Community = () => {
                                 <Shield className="w-4 h-4 shrink-0 mt-0.5" />
                                 Be kind, respectful, and avoid sharing personal medical details. Your first few posts will be reviewed before publishing.
                             </div>
+                            {postError && (
+                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
+                                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    {postError}
+                                </div>
+                            )}
                             <button
                                 type="submit"
                                 disabled={submitting || !newPost.title || !newPost.content || !newPost.category_id}

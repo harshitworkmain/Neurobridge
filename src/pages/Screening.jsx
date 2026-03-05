@@ -59,32 +59,46 @@ const Screening = () => {
 
     const scoresRef = useRef({ attention: [], movement: [] });
 
-    // Initialize MediaPipe
+    // Initialize MediaPipe with retry logic
     useEffect(() => {
         const initAI = async () => {
-            try {
-                setAiStatus('Loading Vision WASM...');
-                const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
+            let retries = 2;
+            
+            while (retries >= 0) {
+                try {
+                    setAiStatus('Loading Vision WASM...');
+                    const vision = await FilesetResolver.forVisionTasks(
+                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+                    );
 
-                setAiStatus('Loading Face Model...');
-                const landmarker = await FaceLandmarker.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
-                        delegate: "CPU"
-                    },
-                    outputFaceBlendshapes: true,
-                    runningMode: "VIDEO",
-                    numFaces: 2 // Detect up to 2 faces for multi-face detection
-                });
-                setFaceLandmarker(landmarker);
-                setAiStatus('Ready');
-                setLoadingAI(false);
-            } catch (err) {
-                console.error("AI Init Error:", err);
-                setAiStatus('Offline Mode (AI Failed)');
-                setErrorMsg("AI Models failed to load. Basic video will work, but scoring may be limited.");
-                setLoadingAI(false);
+                    setAiStatus('Loading Face Model...');
+                    const landmarker = await FaceLandmarker.createFromOptions(vision, {
+                        baseOptions: {
+                            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+                            delegate: "CPU"
+                        },
+                        outputFaceBlendshapes: true,
+                        runningMode: "VIDEO",
+                        numFaces: 2
+                    });
+                    setFaceLandmarker(landmarker);
+                    setAiStatus('Ready');
+                    setLoadingAI(false);
+                    return;
+                } catch (err) {
+                    console.error(`AI Init Error (retries left: ${retries}):`, err);
+                    if (retries > 0) {
+                        setAiStatus(`Retrying... (${retries} left)`);
+                        await new Promise(r => setTimeout(r, 2000));
+                    }
+                    retries--;
+                }
             }
+            
+            // All retries exhausted - fallback mode
+            setAiStatus('Offline Mode (AI Failed)');
+            setErrorMsg("AI Models failed to load after multiple attempts. This may be due to network restrictions or browser security policies. Basic video will work, but AI-assisted scoring is unavailable. Try: 1) Refreshing the page, 2) Using HTTPS, 3) Checking firewall settings.");
+            setLoadingAI(false);
         };
         initAI();
     }, []);

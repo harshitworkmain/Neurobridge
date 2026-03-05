@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Brain, Stethoscope, Activity, Users, Settings, Menu, X, FileText, Video, Gamepad2, Bell, Moon, Sun, Shield, Target } from 'lucide-react';
+import { LayoutDashboard, Brain, Stethoscope, Activity, Users, Settings, Menu, X, FileText, Video, Gamepad2, Bell, Moon, Sun, Shield, Target, ChevronLeft, ChevronRight } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { usePreferences } from '../contexts/PreferencesContext';
@@ -9,12 +9,12 @@ import API from '../config/api.js';
 
 const Layout = ({ children }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
     const [unreadCount, setUnreadCount] = React.useState(0);
     const [showSettings, setShowSettings] = React.useState(false);
     const location = useLocation();
     const prefs = usePreferences();
 
-    // Poll for notification count
     React.useEffect(() => {
         const loadCount = async () => {
             try {
@@ -23,10 +23,10 @@ const Layout = ({ children }) => {
                     const data = await res.json();
                     setUnreadCount(data.unread_count || 0);
                 }
-            } catch (e) { /* ignore */ }
+            } catch { /* ignore notification errors */ }
         };
         loadCount();
-        const interval = setInterval(loadCount, 30000); // Poll every 30s
+        const interval = setInterval(loadCount, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -41,55 +41,112 @@ const Layout = ({ children }) => {
         { name: 'Community', path: '/community', icon: Users },
     ];
 
-    // Helper to merge classes
     function cn(...inputs) {
         return twMerge(clsx(inputs));
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-            {/* Navigation */}
-            <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between h-16">
-                        <div className="flex">
-                            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+        <div className="min-h-screen bg-slate-50 flex font-sans">
+            {/* Left Sidebar - Desktop */}
+            <aside className={cn(
+                "hidden lg:flex flex-col bg-white border-r border-slate-200 sticky top-0 h-screen transition-all duration-300 z-40",
+                sidebarCollapsed ? "w-20" : "w-64"
+            )}>
+                {/* Logo */}
+                <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100">
+                    <Link to="/" className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shrink-0">
+                            <Brain className="w-5 h-5 text-white" />
+                        </div>
+                        {!sidebarCollapsed && (
+                            <span className="text-lg font-bold text-slate-900 tracking-tight">NeuroBridge</span>
+                        )}
+                    </Link>
+                    <button
+                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                        title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                    </button>
+                </div>
+
+                {/* Navigation Links */}
+                <nav className="flex-1 py-4 overflow-y-auto">
+                    <ul className="space-y-1 px-3">
+                        {navItems.map((item) => {
+                            const isActive = location.pathname === item.path;
+                            return (
+                                <li key={item.name}>
+                                    <Link
+                                        to={item.path}
+                                        className={cn(
+                                            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200",
+                                            isActive
+                                                ? "bg-primary-50 text-primary-700 font-medium"
+                                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                        )}
+                                        title={sidebarCollapsed ? item.name : undefined}
+                                    >
+                                        <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-primary-600" : "text-slate-400")} />
+                                        {!sidebarCollapsed && <span>{item.name}</span>}
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </nav>
+
+                {/* Secondary Links */}
+                <div className="border-t border-slate-100 py-4 px-3">
+                    <Link
+                        to="/clinician"
+                        className={cn(
+                            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors",
+                            sidebarCollapsed && "justify-center"
+                        )}
+                        title={sidebarCollapsed ? "Clinician Mode" : undefined}
+                    >
+                        <Stethoscope className="w-5 h-5 text-slate-400 shrink-0" />
+                        {!sidebarCollapsed && <span>Clinician Mode</span>}
+                    </Link>
+                    <Link
+                        to="/reports"
+                        className={cn(
+                            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors",
+                            sidebarCollapsed && "justify-center"
+                        )}
+                        title={sidebarCollapsed ? "Reports" : undefined}
+                    >
+                        <FileText className="w-5 h-5 text-slate-400 shrink-0" />
+                        {!sidebarCollapsed && <span>Reports</span>}
+                    </Link>
+                </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col min-w-0">
+                {/* Top Header */}
+                <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
+                    <div className="h-16 flex items-center justify-between px-4 lg:px-6">
+                        {/* Mobile menu button + Logo on mobile */}
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-slate-500 hover:bg-slate-100"
+                            >
+                                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                            </button>
+                            <Link to="/" className="lg:hidden flex items-center gap-2">
                                 <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
                                     <Brain className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="text-xl font-bold text-slate-900 tracking-tight">NeuroBridge AI</span>
+                                <span className="text-lg font-bold text-slate-900">NeuroBridge</span>
                             </Link>
                         </div>
 
-                        {/* Desktop Nav */}
-                        <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            {navItems.map((item) => {
-                                const isActive = location.pathname === item.path;
-                                return (
-                                    <Link
-                                        key={item.name}
-                                        to={item.path}
-                                        className={cn(
-                                            "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200",
-                                            isActive
-                                                ? "border-primary-500 text-slate-900"
-                                                : "border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700"
-                                        )}
-                                    >
-                                        <item.icon className="w-4 h-4 mr-2" />
-                                        {item.name}
-                                    </Link>
-                                );
-                            })}
-                        </div>
-
-                        <div className="hidden sm:ml-6 sm:flex sm:items-center gap-2">
-                            <Link to="/clinician" className="text-sm font-medium text-slate-500 hover:text-primary-600">
-                                Clinician Mode
-                            </Link>
-                            <Link to="/reports" className="text-sm font-medium text-slate-500 hover:text-primary-600 ml-2">
-                                <FileText className="w-4 h-4" />
-                            </Link>
+                        {/* Right side - Notifications & Settings */}
+                        <div className="flex items-center gap-2">
                             <div className="relative">
                                 <button
                                     className="bg-primary-50 text-primary-700 p-2 rounded-full hover:bg-primary-100 transition-colors relative"
@@ -97,7 +154,7 @@ const Layout = ({ children }) => {
                                 >
                                     <Bell className="w-5 h-5" />
                                     {unreadCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm animate-pulse">
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
                                             {unreadCount > 9 ? '9+' : unreadCount}
                                         </span>
                                     )}
@@ -144,74 +201,90 @@ const Layout = ({ children }) => {
                                 )}
                             </div>
                         </div>
-
-                        {/* Mobile menu button */}
-                        <div className="-mr-2 flex items-center sm:hidden">
-                            <button
-                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                                className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
-                            >
-                                <span className="sr-only">Open main menu</span>
-                                {isMobileMenuOpen ? (
-                                    <X className="block h-6 w-6" aria-hidden="true" />
-                                ) : (
-                                    <Menu className="block h-6 w-6" aria-hidden="true" />
-                                )}
-                            </button>
-                        </div>
                     </div>
-                </div>
+                </header>
 
-                {/* Mobile Menu */}
+                {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="sm:hidden bg-white border-b border-slate-200">
-                        <div className="pt-2 pb-3 space-y-1">
-                            {navItems.map((item) => {
-                                const isActive = location.pathname === item.path;
-                                return (
+                    <div className="lg:hidden fixed inset-0 z-50 bg-slate-900/50" onClick={() => setIsMobileMenuOpen(false)}>
+                        <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl" onClick={e => e.stopPropagation()}>
+                            <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                                        <Brain className="w-5 h-5 text-white" />
+                                    </div>
+                                    <span className="text-lg font-bold text-slate-900">NeuroBridge</span>
+                                </div>
+                                <button
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="p-2 rounded-lg text-slate-400 hover:text-slate-600"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <nav className="py-4">
+                                <ul className="space-y-1 px-3">
+                                    {navItems.map((item) => {
+                                        const isActive = location.pathname === item.path;
+                                        return (
+                                            <li key={item.name}>
+                                                <Link
+                                                    to={item.path}
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                    className={cn(
+                                                        "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                                                        isActive
+                                                            ? "bg-primary-50 text-primary-700 font-medium"
+                                                            : "text-slate-600 hover:bg-slate-50"
+                                                    )}
+                                                >
+                                                    <item.icon className="w-5 h-5" />
+                                                    <span>{item.name}</span>
+                                                </Link>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                                <div className="border-t border-slate-100 mt-4 pt-4 px-3">
                                     <Link
-                                        key={item.name}
-                                        to={item.path}
+                                        to="/clinician"
                                         onClick={() => setIsMobileMenuOpen(false)}
-                                        className={cn(
-                                            "flex items-center pl-3 pr-4 py-2 border-l-4 text-base font-medium",
-                                            isActive
-                                                ? "bg-primary-50 border-primary-500 text-primary-700"
-                                                : "border-transparent text-slate-500 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700"
-                                        )}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50"
                                     >
-                                        <item.icon className="w-5 h-5 mr-3" />
-                                        {item.name}
+                                        <Stethoscope className="w-5 h-5" />
+                                        <span>Clinician Mode</span>
                                     </Link>
-                                );
-                            })}
-                            <Link
-                                to="/clinician"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="flex items-center pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-slate-500 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700"
-                            >
-                                <Users className="w-5 h-5 mr-3" />
-                                Clinician View
-                            </Link>
+                                    <Link
+                                        to="/reports"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50"
+                                    >
+                                        <FileText className="w-5 h-5" />
+                                        <span>Reports</span>
+                                    </Link>
+                                </div>
+                            </nav>
                         </div>
                     </div>
                 )}
-            </nav>
 
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
-            </main>
+                {/* Main Content */}
+                <main className="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-6 py-8">
+                    {children}
+                </main>
 
-            <footer className="bg-white border-t border-slate-200">
-                <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center text-sm text-slate-500">
-                    <p>© 2024 NeuroBridge AI. Demo Platform.</p>
-                    <div className="flex space-x-4">
-                        <Link to="/consent" className="hover:text-slate-900">Privacy & Consent</Link>
-                        <span>|</span>
-                        <span>v5.0.0</span>
+                {/* Footer */}
+                <footer className="bg-white border-t border-slate-200">
+                    <div className="max-w-7xl mx-auto py-6 px-4 lg:px-6 flex justify-between items-center text-sm text-slate-500">
+                        <p>© 2024 NeuroBridge AI. Demo Platform.</p>
+                        <div className="flex space-x-4">
+                            <Link to="/consent" className="hover:text-slate-900">Privacy & Consent</Link>
+                            <span>|</span>
+                            <span>v5.0.0</span>
+                        </div>
                     </div>
-                </div>
-            </footer>
+                </footer>
+            </div>
         </div>
     );
 };

@@ -119,7 +119,7 @@
   opacity: 1 !important;
 }
 
-/* Mute vibrant gradients in sensory mode */
+/* Mute vibrant gradients in sensory mode but keep buttons visible */
 .sensory-safe .bg-gradient-to-r,
 .sensory-safe .bg-gradient-to-br {
   background-image: none !important;
@@ -127,30 +127,75 @@
   /* slate-500 — neutral */
 }
 
-/* Reduce contrast on colored backgrounds */
+/* Keep primary buttons visible in sensory mode - use higher contrast muted colors */
 .sensory-safe .bg-primary-600,
 .sensory-safe .bg-primary-700 {
-  background-color: #64748b !important;
+  background-color: #475569 !important;
+  /* slate-600 - good contrast against white */
+  border: 2px solid #334155 !important;
 }
 
 .sensory-safe .bg-emerald-500,
 .sensory-safe .bg-emerald-600 {
-  background-color: #6b8a7a !important;
+  background-color: #577a6e !important;
+  border: 2px solid #3d6b5e !important;
 }
 
 .sensory-safe .bg-violet-500,
 .sensory-safe .bg-violet-600 {
-  background-color: #7b7d8a !important;
+  background-color: #5c5d6e !important;
+  border: 2px solid #4a4b5c !important;
 }
 
 .sensory-safe .bg-pink-500,
 .sensory-safe .bg-rose-600 {
-  background-color: #8a7b7d !important;
+  background-color: #6e5d5f !important;
+  border: 2px solid #5c4d4f !important;
 }
 
 .sensory-safe .bg-amber-500,
 .sensory-safe .bg-orange-600 {
-  background-color: #8a7b5d !important;
+  background-color: #6e614d !important;
+  border: 2px solid #5c513d !important;
+}
+
+.sensory-safe .bg-red-600,
+.sensory-safe .bg-red-700 {
+  background-color: #b91c1c !important;
+  border: 2px solid #991b1b !important;
+}
+
+/* Ensure text on buttons remains visible */
+.sensory-safe button,
+.sensory-safe .bg-primary-600,
+.sensory-safe .bg-primary-700,
+.sensory-safe .bg-red-600,
+.sensory-safe .bg-emerald-500 {
+  color: #ffffff !important;
+}
+
+/* Add subtle border/shadow to key CTAs for visibility */
+.sensory-safe button:not(:disabled),
+.sensory-safe a.button,
+.sensory-safe .cta-button {
+  border: 2px solid currentColor !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+/* Focus visible outlines for accessibility */
+*:focus-visible {
+  outline: 2px solid #0284c7;
+  outline-offset: 2px;
+}
+
+.dark *:focus-visible {
+  outline-color: #38bdf8;
+}
+
+/* High contrast button styles for light mode */
+.bg-white button,
+.bg-slate-50 button {
+  border: 1px solid #cbd5e1;
 }
 
 /* Mute shadows in sensory mode */
