@@ -1,4 +1,5 @@
 import db from '../db.js';
+import { analyzeToxicity, getRecommendedAction, quickToxicityCheck } from './moderationEngine.js';
 
 // ============================================
 // COMMUNITY ENGINE
@@ -183,7 +184,7 @@ export function getPost(postId, userId) {
 /**
  * Create a new post
  */
-export function createPost({ author_id, category_id, title, content }) {
+export async function createPost({ author_id, category_id, title, content }) {
     if (!author_id || !category_id || !title || !content) {
         throw new Error('author_id, category_id, title, and content are required');
     }
@@ -207,30 +208,54 @@ export function createPost({ author_id, category_id, title, content }) {
     // Check "Ask a Clinician" category restriction
     if (category_id === 'ask_clinician' && user?.role !== 'clinician' && user?.role !== 'admin') {
         // Allow questions, but note that only clinicians can answer
-        // (we allow posting questions here, responses come as comments)
+    }
+
+    // --- ML Toxicity Check ---
+    const combinedText = title + ' ' + content;
+    const quickCheck = quickToxicityCheck(combinedText);
+
+    // Block severe content immediately
+    if (quickCheck.toxic && quickCheck.severity === 'high') {
+        throw new Error('Your post contains content that violates community guidelines and cannot be published.');
     }
 
     // Determine initial status (first-post moderation)
     const postCount = db.prepare('SELECT COUNT(*) as count FROM community_posts WHERE author_id = ?').get(author_id);
-    const status = postCount.count < 3 ? 'under_review' : 'active';
+    let status = postCount.count < 3 ? 'under_review' : 'active';
 
     // Check for watchlist keywords
-    const hasWatchlistContent = checkWatchlistContent(title + ' ' + content);
+    const hasWatchlistContent = checkWatchlistContent(combinedText);
+    if (hasWatchlistContent) status = 'under_review';
+
+    // Quick toxicity check overrides
+    if (quickCheck.toxic && quickCheck.severity === 'medium') {
+        status = 'under_review';
+    }
 
     const stmt = db.prepare(`
     INSERT INTO community_posts (author_id, category_id, title, content, status)
     VALUES (?, ?, ?, ?, ?)
   `);
 
-    const info = stmt.run(
-        author_id, category_id, title, content,
-        hasWatchlistContent ? 'under_review' : status
-    );
+    const info = stmt.run(author_id, category_id, title, content, status);
+
+    // Run full ML analysis async (doesn't block post creation)
+    analyzeToxicity(combinedText).then(analysis => {
+        if (analysis.toxic) {
+            const action = getRecommendedAction(analysis);
+            if (action === 'review' || action === 'block') {
+                db.prepare("UPDATE community_posts SET status = 'under_review' WHERE id = ? AND status = 'active'")
+                    .run(info.lastInsertRowid);
+            }
+            console.log(`🧠 ML Moderation [Post ${info.lastInsertRowid}]: ${analysis.labels.join(', ')} (${analysis.severity}) → ${action}`);
+        }
+    }).catch(() => { });
 
     return {
         id: info.lastInsertRowid,
-        status: hasWatchlistContent ? 'under_review' : status,
-        flagged: hasWatchlistContent,
+        status,
+        flagged: hasWatchlistContent || quickCheck.toxic,
+        moderation: quickCheck.toxic ? { reason: quickCheck.reason, severity: quickCheck.severity } : null,
         success: true
     };
 }
@@ -273,7 +298,7 @@ export function deletePost(postId, userId) {
 /**
  * Add comment or reply to a post
  */
-export function addComment({ post_id, author_id, content, parent_comment_id }) {
+export async function addComment({ post_id, author_id, content, parent_comment_id }) {
     if (!post_id || !author_id || !content) {
         throw new Error('post_id, author_id, and content are required');
     }
@@ -292,18 +317,43 @@ export function addComment({ post_id, author_id, content, parent_comment_id }) {
         throw new Error(`Daily comment limit reached (${MAX_COMMENTS_PER_DAY} comments/day)`);
     }
 
+    // --- ML Toxicity Check ---
+    const quickCheck = quickToxicityCheck(content);
+    if (quickCheck.toxic && quickCheck.severity === 'high') {
+        throw new Error('Your comment contains content that violates community guidelines.');
+    }
+
+    let commentStatus = 'active';
+    if (quickCheck.toxic && quickCheck.severity === 'medium') {
+        commentStatus = 'hidden'; // Hide toxic comments pending review
+    }
+
     const stmt = db.prepare(`
-    INSERT INTO community_comments (post_id, author_id, parent_comment_id, content)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO community_comments (post_id, author_id, parent_comment_id, content, status)
+    VALUES (?, ?, ?, ?, ?)
   `);
 
-    const info = stmt.run(post_id, author_id, parent_comment_id || null, content);
+    const info = stmt.run(post_id, author_id, parent_comment_id || null, content, commentStatus);
 
-    // Update comment count
-    db.prepare('UPDATE community_posts SET comment_count = comment_count + 1 WHERE id = ?').run(post_id);
+    // Update comment count (only for active comments)
+    if (commentStatus === 'active') {
+        db.prepare('UPDATE community_posts SET comment_count = comment_count + 1 WHERE id = ?').run(post_id);
+    }
+
+    // Run full ML analysis async
+    analyzeToxicity(content).then(analysis => {
+        if (analysis.toxic) {
+            const action = getRecommendedAction(analysis);
+            if (action === 'review' || action === 'block') {
+                db.prepare("UPDATE community_comments SET status = 'hidden' WHERE id = ? AND status = 'active'")
+                    .run(info.lastInsertRowid);
+            }
+            console.log(`🧠 ML Moderation [Comment ${info.lastInsertRowid}]: ${analysis.labels.join(', ')} (${analysis.severity}) → ${action}`);
+        }
+    }).catch(() => { });
 
     // Notify post author (if different from commenter)
-    if (post.author_id !== author_id) {
+    if (post.author_id !== author_id && commentStatus === 'active') {
         const commenter = db.prepare('SELECT name, display_name FROM users WHERE id = ?').get(author_id);
         createNotification(post.author_id, 'comment_added', 'community',
             'New Comment',
@@ -313,7 +363,7 @@ export function addComment({ post_id, author_id, content, parent_comment_id }) {
     }
 
     // Notify parent comment author if this is a reply
-    if (parent_comment_id) {
+    if (parent_comment_id && commentStatus === 'active') {
         const parentComment = db.prepare('SELECT author_id FROM community_comments WHERE id = ?').get(parent_comment_id);
         if (parentComment && parentComment.author_id !== author_id) {
             const commenter = db.prepare('SELECT name, display_name FROM users WHERE id = ?').get(author_id);
@@ -325,7 +375,12 @@ export function addComment({ post_id, author_id, content, parent_comment_id }) {
         }
     }
 
-    return { id: info.lastInsertRowid, success: true };
+    return {
+        id: info.lastInsertRowid,
+        status: commentStatus,
+        moderation: quickCheck.toxic ? { reason: quickCheck.reason, severity: quickCheck.severity } : null,
+        success: true
+    };
 }
 
 // ============================================

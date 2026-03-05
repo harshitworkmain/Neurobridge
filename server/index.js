@@ -53,6 +53,7 @@ import {
     extractTemporalFeatures,
     BEHAVIORAL_QUESTIONNAIRE
 } from './engines/metricsEngine.js';
+import { preloadModel, getModelStatus } from './engines/moderationEngine.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -1059,6 +1060,14 @@ app.use(notificationRoutes);
 app.use(extrasRoutes);
 
 // ============================================
+// MODERATION STATUS
+// ============================================
+
+app.get('/api/v1/moderation/status', (req, res) => {
+    res.json({ success: true, moderation: getModelStatus() });
+});
+
+// ============================================
 // CENTRALIZED ERROR HANDLER
 // ============================================
 
@@ -1079,16 +1088,19 @@ const httpServer = createServer(app);
 const io = initSocketServer(httpServer);
 
 httpServer.listen(PORT, () => {
-    console.log(`NeuroBridge AI Backend v5.3 running on http://localhost:${PORT}`);
+    console.log(`NeuroBridge AI Backend v5.4 running on http://localhost:${PORT}`);
     console.log('API Versioning: ENABLED (/api/v1 + legacy fallback)');
     console.log('Clinician Intelligence Mode: ENABLED');
     console.log('Product Workflow Engine: ENABLED (Phases 1-7)');
     console.log('Teleconsultation Module: ENABLED');
     console.log('WebRTC Signaling (Socket.IO): ENABLED');
     console.log('Therapy Games Module: ENABLED (4 interactive games)');
-    console.log('Community Platform Module: ENABLED (+ Profanity Filter)');
+    console.log('Community Platform Module: ENABLED (+ ML Toxicity Filter)');
     console.log('Notification Center: ENABLED');
 
     // Initialize cron-based scheduler
     initScheduler();
+
+    // Preload ML toxicity model in background
+    preloadModel();
 });

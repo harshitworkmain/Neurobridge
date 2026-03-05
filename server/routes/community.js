@@ -91,8 +91,8 @@ router.get('/community/posts/:id', (req, res) => {
     }
 });
 
-// POST /community/posts — Create new post (with profanity filter)
-router.post('/community/posts', (req, res) => {
+// POST /community/posts — Create new post (with profanity + ML toxicity filter)
+router.post('/community/posts', async (req, res) => {
     try {
         const userId = getUserId(req);
         let { category_id, title, content } = req.body;
@@ -108,7 +108,7 @@ router.post('/community/posts', (req, res) => {
             filtered = true;
         }
 
-        const result = createPost({ author_id: userId, category_id, title, content });
+        const result = await createPost({ author_id: userId, category_id, title, content });
         res.json({ ...result, filtered });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -147,8 +147,8 @@ router.delete('/community/posts/:id', (req, res) => {
 // COMMENT ROUTES
 // ============================================
 
-// POST /community/posts/:id/comments — Add comment to post (with profanity filter)
-router.post('/community/posts/:id/comments', (req, res) => {
+// POST /community/posts/:id/comments — Add comment to post (with profanity + ML toxicity filter)
+router.post('/community/posts/:id/comments', async (req, res) => {
     try {
         const postId = parseInt(req.params.id);
         if (isNaN(postId)) return res.status(400).json({ error: 'Invalid post ID' });
@@ -163,7 +163,7 @@ router.post('/community/posts/:id/comments', (req, res) => {
             filtered = true;
         }
 
-        const result = addComment({ post_id: postId, author_id: userId, content, parent_comment_id });
+        const result = await addComment({ post_id: postId, author_id: userId, content, parent_comment_id });
         res.json({ ...result, filtered });
     } catch (error) {
         res.status(400).json({ error: error.message });
