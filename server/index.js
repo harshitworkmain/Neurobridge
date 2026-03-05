@@ -56,6 +56,7 @@ import {
 } from './engines/metricsEngine.js';
 import { preloadModel, getModelStatus } from './engines/moderationEngine.js';
 import { initPushTable } from './engines/pushEngine.js';
+import { initEmailTransporter, sendWeeklyReport, getEmailStatus } from './engines/emailEngine.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -1071,6 +1072,22 @@ app.get('/api/v1/moderation/status', (req, res) => {
     res.json({ success: true, moderation: getModelStatus() });
 });
 
+// GET /api/v1/email/status — Email system status
+app.get('/api/v1/email/status', (req, res) => {
+    res.json({ success: true, email: getEmailStatus() });
+});
+
+// POST /api/v1/email/weekly-report — Send weekly report for current user
+app.post('/api/v1/email/weekly-report', async (req, res) => {
+    try {
+        const userId = (req.user && req.user.id) ? req.user.id : 1;
+        const result = await sendWeeklyReport(userId);
+        res.json({ success: true, ...result });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ============================================
 // CENTRALIZED ERROR HANDLER
 // ============================================
@@ -1092,7 +1109,7 @@ const httpServer = createServer(app);
 const io = initSocketServer(httpServer);
 
 httpServer.listen(PORT, () => {
-    console.log(`NeuroBridge AI Backend v5.5 running on http://localhost:${PORT}`);
+    console.log(`NeuroBridge AI Backend v5.6 running on http://localhost:${PORT}`);
     console.log('API Versioning: ENABLED (/api/v1 + legacy fallback)');
     console.log('Clinician Intelligence Mode: ENABLED');
     console.log('Product Workflow Engine: ENABLED (Phases 1-7)');
@@ -1102,9 +1119,13 @@ httpServer.listen(PORT, () => {
     console.log('Community Platform Module: ENABLED (+ ML Toxicity Filter)');
     console.log('Notification Center: ENABLED');
     console.log('Push Notifications: ENABLED (Web Push + VAPID)');
+    console.log('Email Reports: ENABLED (Nodemailer)');
 
     // Initialize push subscriptions table
     initPushTable();
+
+    // Initialize email transporter
+    initEmailTransporter();
 
     // Initialize cron-based scheduler
     initScheduler();
