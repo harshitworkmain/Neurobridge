@@ -14,6 +14,7 @@ import gameRoutes from './routes/games.js';
 import communityRoutes from './routes/community.js';
 import notificationRoutes from './routes/notifications.js';
 import extrasRoutes from './routes/extras.js';
+import pushRoutes from './routes/push.js';
 
 // Engine Imports
 import { generateTherapyPlan, getTherapyPlanFromScreening, THERAPY_MODULES } from './engines/therapyEngine.js';
@@ -54,6 +55,7 @@ import {
     BEHAVIORAL_QUESTIONNAIRE
 } from './engines/metricsEngine.js';
 import { preloadModel, getModelStatus } from './engines/moderationEngine.js';
+import { initPushTable } from './engines/pushEngine.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -1051,6 +1053,7 @@ app.use('/api/v1', gameRoutes);
 app.use('/api/v1', communityRoutes);
 app.use('/api/v1', notificationRoutes);
 app.use('/api/v1', extrasRoutes);
+app.use('/api/v1', pushRoutes);
 
 // Legacy routes (backward compatibility — will be deprecated in v6)
 app.use(teleconsultRoutes);
@@ -1058,6 +1061,7 @@ app.use(gameRoutes);
 app.use(communityRoutes);
 app.use(notificationRoutes);
 app.use(extrasRoutes);
+app.use(pushRoutes);
 
 // ============================================
 // MODERATION STATUS
@@ -1088,7 +1092,7 @@ const httpServer = createServer(app);
 const io = initSocketServer(httpServer);
 
 httpServer.listen(PORT, () => {
-    console.log(`NeuroBridge AI Backend v5.4 running on http://localhost:${PORT}`);
+    console.log(`NeuroBridge AI Backend v5.5 running on http://localhost:${PORT}`);
     console.log('API Versioning: ENABLED (/api/v1 + legacy fallback)');
     console.log('Clinician Intelligence Mode: ENABLED');
     console.log('Product Workflow Engine: ENABLED (Phases 1-7)');
@@ -1097,6 +1101,10 @@ httpServer.listen(PORT, () => {
     console.log('Therapy Games Module: ENABLED (4 interactive games)');
     console.log('Community Platform Module: ENABLED (+ ML Toxicity Filter)');
     console.log('Notification Center: ENABLED');
+    console.log('Push Notifications: ENABLED (Web Push + VAPID)');
+
+    // Initialize push subscriptions table
+    initPushTable();
 
     // Initialize cron-based scheduler
     initScheduler();
