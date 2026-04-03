@@ -1,15 +1,14 @@
 <div align="center">
-  <img src="public/brain-icon.png" alt="NeuroBridge AI Logo" width="120" />
   <h1>NeuroBridge AI</h1>
   <p><strong>A Full Remote Autism Care Ecosystem</strong></p>
   <p>AI-powered neurodevelopmental screening, interactive therapy, and clinical intelligence.</p>
 </div>
 
+![Landing Page](docs/assets/landing-page.png)
+
 ---
 
 NeuroBridge AI has evolved from a screening tool into a **comprehensive Continuous Remote Care Ecosystem**. Designed for caregivers and clinicians, it combines real-time computer vision, interactive therapy games, and clinical intelligence tools into a cohesive web platform to assist in early ASD screening and therapy planning.
-
-![Dashboard Preview](docs/assets/dashboard.png)
 
 ## 🌐 Live Deployments
 
@@ -29,6 +28,8 @@ A robust initial screening tool that uses the device camera to analyze facial an
 - **Behavioral Questionnaire Fusion:** Multi-modal risk assessment combining AI metrics with standardized questions.
 - **Triage Classification:** Provides severity classification with clinical explanations.
 
+![AI Screening](docs/assets/screening-model.png)
+
 ### 🎮 2. Therapy Games
 An interactive hub with 4 custom-built Phaser games designed specifically for neurodevelopmental therapy.
 - **Memory Match:** Visual memory training with OpenMoji emoji cards, animations, and tiered difficulty.
@@ -45,6 +46,10 @@ A powerful dashboard designed for clinical professionals to monitor patient prog
 - **Regression Alerts:** Automatically detects regressions in skills and alerts the clinician.
 - **Therapy Goal Management:** Set, track, and update domain-based therapy goals.
 - **Recharts-powered Dashboards:** Comprehensive line, area, bar, and radar charts.
+
+![Dashboard Preview](docs/assets/dashboard.png)
+
+![Clinician Worklist](docs/assets/clinician-login-worklist.png)
 
 ### 👥 4. Community Platform
 A safe, supportive forum for caregivers to share experiences, ask questions, and build a network.
@@ -68,6 +73,8 @@ Proactive tools to keep caregivers and patients engaged.
 - **Automated Push Notifications:** Web Push and VAPID powered reminders for therapy and appointments.
 - **Email Reports:** Weekly progress email digests using Nodemailer.
 - **Automated Scheduler:** Cron jobs for daily reminders, notification cleanup, and streak tracking.
+
+![Therapy Plan](docs/assets/therapy-plan.png)
 
 ---
 
