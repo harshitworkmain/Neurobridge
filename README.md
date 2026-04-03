@@ -1,143 +1,139 @@
-# NeuroBridge AI
-
-> AI-powered neurodevelopmental screening & therapy platform for children with ASD
-
-NeuroBridge AI combines real-time computer vision, interactive therapy games, and clinical intelligence tools into a single web platform — designed to assist caregivers and clinicians in early ASD screening and therapy planning.
-
----
-
-## Features
-
-### 🧠 AI Screening
-- **Real-time face analysis** using MediaPipe Face Mesh (468 landmarks)
-- **Hybrid gaze tracking** — iris + nose-based attention scoring
-- **Behavioral questionnaire** fusion for multi-modal risk assessment
-- **Triage classification** with clinical explanations
-
-### 🎮 Therapy Games (4 interactive Phaser games)
-- **Memory Match** — Visual memory with OpenMoji emoji cards
-- **Day Builder** — ADL sequencing (drag-drop daily routines)
-- **Emotion Mirror** — Webcam-based emotion matching
-- **Gaze Garden** — Sustained attention training
-
-### 📊 Progress & Analytics
-- Recharts-powered dashboards (line, area, bar, radar)
-- Clinician Intelligence Mode — patient trends, regression alerts, cohort analytics
-- Therapy effectiveness tracking + goal management
-
-### 👥 Community Platform
-- Category-based posts with profanity filter
-- Medical disclaimer, post verification, moderation queue
-- Bookmarks, likes, comments
-
-### 📹 Teleconsultation
-- WebRTC video calls with Socket.IO signaling
-- Metered TURN server for NAT traversal
-- Session notes + pre-visit summaries
-
-### 🔧 Additional
-- Visual Schedule with voice readback (Web Speech API)
-- Automated scheduler (node-cron) — reminders, digests, cleanup
-- Error boundaries on all pages
-- API versioning (`/api/v1`) with legacy fallback
+<div align="center">
+  <img src="public/brain-icon.png" alt="NeuroBridge AI Logo" width="120" />
+  <h1>NeuroBridge AI</h1>
+  <p><strong>A Full Remote Autism Care Ecosystem</strong></p>
+  <p>AI-powered neurodevelopmental screening, interactive therapy, and clinical intelligence.</p>
+</div>
 
 ---
 
-## Tech Stack
+NeuroBridge AI has evolved from a screening tool into a **comprehensive Continuous Remote Care Ecosystem**. Designed for caregivers and clinicians, it combines real-time computer vision, interactive therapy games, and clinical intelligence tools into a cohesive web platform to assist in early ASD screening and therapy planning.
 
-| Layer | Technologies |
-|-------|-------------|
-| **Frontend** | React 19, Vite 7, Tailwind CSS 4, Recharts, Phaser 3, Framer Motion |
-| **Backend** | Node.js 22, Express 5, Socket.IO |
-| **Database** | SQLite (better-sqlite3) — PostgreSQL-ready |
-| **AI/ML** | MediaPipe Face Mesh, Web Speech API |
-| **Testing** | Playwright (E2E) |
+![Dashboard Preview](docs/assets/dashboard.png)
+
+## 🌐 Live Deployments
+
+- **Frontend Application:** [https://neurobridge-app.onrender.com](https://neurobridge-app.onrender.com)
+- **Backend API:** [https://neurobridge-api.onrender.com](https://neurobridge-api.onrender.com)
+
+*(Note: Initial load may take up to 50 seconds on the free tier of Render).*
 
 ---
 
-## Quick Start
+## ✨ Key Features & Modules
+
+### 🧠 1. AI Screening & Risk Assessment
+A robust initial screening tool that uses the device camera to analyze facial and behavioral features.
+- **Real-time Face Analysis:** Uses MediaPipe Face Mesh (468 landmarks) to track expressions.
+- **Hybrid Gaze Tracking:** Iris and nose-based attention scoring to assess focus and eye contact.
+- **Behavioral Questionnaire Fusion:** Multi-modal risk assessment combining AI metrics with standardized questions.
+- **Triage Classification:** Provides severity classification with clinical explanations.
+
+### 🎮 2. Therapy Games
+An interactive hub with 4 custom-built Phaser games designed specifically for neurodevelopmental therapy.
+- **Memory Match:** Visual memory training with OpenMoji emoji cards, animations, and tiered difficulty.
+- **Day Builder:** ADL (Activities of Daily Living) sequencing using drag-and-drop mechanics to build daily routines.
+- **Emotion Mirror:** Webcam-based emotion matching game that prompts children to mimic expressions.
+- **Gaze Garden:** Sustained attention training using a click-and-hold focus mechanic.
+- **Caregiver Co-Play:** Includes note-taking functionality during games and game session replays.
+
+![Games Hub](docs/assets/games.png)
+
+### 📊 3. Clinician Intelligence & Analytics
+A powerful dashboard designed for clinical professionals to monitor patient progress over time.
+- **Patient Trends & Cohort Analytics:** Track engagement, therapy effectiveness, and overall progress.
+- **Regression Alerts:** Automatically detects regressions in skills and alerts the clinician.
+- **Therapy Goal Management:** Set, track, and update domain-based therapy goals.
+- **Recharts-powered Dashboards:** Comprehensive line, area, bar, and radar charts.
+
+### 👥 4. Community Platform
+A safe, supportive forum for caregivers to share experiences, ask questions, and build a network.
+- **ML Content Moderation:** Integration with TensorFlow.js Toxicity model for automated moderation and profanity filtering.
+- **"Ask a Clinician" Section:** Dedicated category with clinician verification badges.
+- **Community Features:** Pinned posts, bookmarks, likes, nested comments, and post reporting.
+
+![Community Platform](docs/assets/community.png)
+
+### 📹 5. Teleconsultation
+Integrated video calls for remote consultations and therapy sessions.
+- **WebRTC Video Calls:** Uses Socket.IO for signaling and Metered TURN servers for reliable real-time video.
+- **Appointment Management:** Weekly calendar grid views for easy scheduling.
+- **Session Notes & Summaries:** Pre-visit clinical snapshots and post-session note keeping.
+
+![Teleconsultation](docs/assets/teleconsult.png)
+
+### 🔔 6. Engagement & Notifications
+Proactive tools to keep caregivers and patients engaged.
+- **Visual Schedule with Voice Readback:** Daily routines using the Web Speech API.
+- **Automated Push Notifications:** Web Push and VAPID powered reminders for therapy and appointments.
+- **Email Reports:** Weekly progress email digests using Nodemailer.
+- **Automated Scheduler:** Cron jobs for daily reminders, notification cleanup, and streak tracking.
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+This project is built with a modern, decoupled architecture capable of seamless scaling:
+
+| Layer           | Technologies                                                                 |
+|-----------------|------------------------------------------------------------------------------|
+| **Frontend**    | React 19, Vite 7, Tailwind CSS 4, Recharts, Phaser 3, Framer Motion         |
+| **Backend**     | Node.js 22, Express 5, Socket.IO, Nodemailer, web-push                      |
+| **Database**    | SQLite (via `better-sqlite3`) — *Designed to be PostgreSQL migration-ready* |
+| **AI / ML**     | MediaPipe Face Mesh, TensorFlow.js Toxicity Model, Web Speech API           |
+| **Testing**     | Playwright (E2E Suites)                                                     |
+
+### Architectural Highlights
+- **Sensory-Safe / Calm Mode:** Disables harsh animations, mutes gradients, and reduces cognitive load at the flip of a switch.
+- **Age-Adaptive UI:** Automatically scales typography and spacing based on user age profiles.
+- **API Versioning Prefix:** Future-proofed under `/api/v1` with a centralized API configuration utility.
+
+---
+
+## 🚀 Quick Start (Local Development)
 
 ### Prerequisites
-- Node.js 22+ 
-- npm 10+
+- [Node.js](https://nodejs.org/en/) 22.0.0 or higher
+- npm 10.0.0 or higher
 
-### Setup
+### Setup Instructions
 
-```bash
-# Clone & install
-git clone https://github.com/harshitworkmain/Neurobridge.git
-cd Neurobridge
-git checkout neurobridge-v2
-npm install
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/harshitworkmain/Neurobridge.git
+   cd Neurobridge
+   git checkout neurobridge-v2
+   ```
 
-# Environment (optional — defaults work for dev)
-cp .env.example .env
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-# Start backend (port 3001)
-node server/index.js
+3. **Environment Configuration**
+   ```bash
+   cp .env.example .env
+   ```
+   *(The default variables are sufficient for local development. If you wish to test Email or Push Notifications, you will need to add SMTP credentials and VAPID keys to the `.env` file).*
 
-# Start frontend (port 5173) — in a separate terminal
-npm run dev
-```
+4. **Start the Backend Server (Port 3001)**
+   ```bash
+   node server/index.js
+   ```
 
-Open [http://localhost:5173](http://localhost:5173)
+5. **Start the Frontend Application (Port 5173)**
+   ```bash
+   # Open a new terminal instance
+   npm run dev
+   ```
 
----
-
-## Project Structure
-
-```
-neurobridge/
-├── docs/                    # Project documentation
-├── server/
-│   ├── engines/             # Business logic modules
-│   │   ├── analyticsEngine.js
-│   │   ├── communityEngine.js
-│   │   ├── gameEngine.js
-│   │   ├── metricsEngine.js
-│   │   ├── screeningEngine.js
-│   │   ├── teleconsultEngine.js
-│   │   ├── therapyEngine.js
-│   │   └── workflowEngine.js
-│   ├── routes/              # Express route handlers
-│   ├── db.js                # Database schema & seeding
-│   ├── index.js             # Server entry (75+ API endpoints)
-│   ├── scheduler.js         # Cron jobs
-│   └── socketManager.js     # WebRTC signaling
-├── src/
-│   ├── components/          # 12 React components
-│   ├── config/api.js        # Centralized API URL config
-│   ├── contexts/            # React contexts
-│   ├── layouts/             # Layout wrapper
-│   ├── pages/               # 11 page components
-│   └── utils/               # Audio cues, fetch retry
-├── tests/                   # Playwright E2E tests
-├── .env.example             # Environment variable template
-└── package.json
-```
+6. **View the Application**
+   Open your browser and navigate to [http://localhost:5173](http://localhost:5173).
 
 ---
 
-## API
-
-Backend runs on port 3001 with 75+ endpoints. Versioned under `/api/v1` with legacy fallback.
-
-| Module | Endpoints | Description |
-|--------|-----------|-------------|
-| Auth | `/api/auth/*` | Register, login, user profile |
-| Screening | `/api/screenings` | AI screening sessions |
-| Therapy | `/api/therapy-plan`, `/therapy/*` | Plans, tasks, modules |
-| Games | `/api/v1/games/*` | 4 interactive games + sessions |
-| Community | `/api/v1/community/*` | Posts, comments, moderation |
-| Analytics | `/analytics/*` | Patient trends, cohort data |
-| Teleconsult | `/api/v1/appointments/*` | Video call scheduling |
-
----
-
-## License
+## 🛡️ License & Disclaimer
 
 This project is part of academic research. All rights reserved.
 
----
-
-> ⚠️ **Screening Support Tool.** This platform is designed to assist caregivers and clinicians. It is not a diagnostic instrument. All results should be reviewed by a qualified healthcare professional.
+> ⚠️ **Disclaimer:** NeuroBridge is a continuous remote care and screening support tool. It is **not** a diagnostic instrument. All screening and assessment results are intended to assist caregivers and should be reviewed by a qualified healthcare professional.
