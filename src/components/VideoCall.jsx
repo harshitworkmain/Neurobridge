@@ -4,8 +4,9 @@ import {
     Video, VideoOff, Mic, MicOff, PhoneOff, Monitor, MonitorOff,
     Users, Loader, AlertTriangle, Maximize2, Minimize2, Clock
 } from 'lucide-react';
+import { WS_URL } from '../config/api';
 
-const SOCKET_URL = 'http://localhost:3001';
+const SOCKET_URL = WS_URL;
 
 const ICE_SERVERS = {
     iceServers: [

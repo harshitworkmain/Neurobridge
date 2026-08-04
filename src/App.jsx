@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
 import { PreferencesProvider, usePreferences } from './contexts/PreferencesContext';
 import OnboardingFlow from './components/OnboardingFlow';
 import ErrorBoundary from './components/ErrorBoundary';
+import { startKeepAlivePing, stopKeepAlivePing } from './utils/keepAlive';
 
 import Home from './pages/Home';
 import Screening from './pages/Screening';
@@ -19,6 +20,12 @@ import TherapyGoals from './pages/TherapyGoals';
 
 function AppContent() {
   const { preferences, loaded, completeOnboarding } = usePreferences();
+
+  // Start background keep-alive pings to prevent Render cold-starts
+  useEffect(() => {
+    startKeepAlivePing();
+    return () => stopKeepAlivePing();
+  }, []);
 
   if (!loaded) return null;
 
